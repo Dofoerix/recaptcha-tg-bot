@@ -12,7 +12,8 @@ def parse_config(path: str) -> dict[str, str | int | list]:
             'token': '',
             'owner_id': 0,
             'include_directories': [],
-            'exclude_directories': []
+            'exclude_directories': [],
+            'kick_delay': 0
         }
 
         with open(path, 'w', encoding='UTF-8') as config_file:

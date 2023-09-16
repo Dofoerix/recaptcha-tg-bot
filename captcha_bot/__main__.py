@@ -17,8 +17,11 @@ async def main():
 
     image_maker = ImageMaker('images', config['include_directories'], config['exclude_directories'])
 
+    newcomers = {}
+
     bot = Bot(config['token'])
-    dp = Dispatcher(image_maker=image_maker, owner_id=config['owner_id'])
+    dp = Dispatcher(image_maker=image_maker, owner_id=config['owner_id'], newcomers=newcomers,
+                    kick_delay=config['kick_delay'])
     dp.include_routers(member.router, admin.router)
 
     await dp.start_polling(bot)
