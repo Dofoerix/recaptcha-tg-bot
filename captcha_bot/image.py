@@ -1,4 +1,5 @@
 import random
+import io
 
 from PIL import Image, ImageFont
 from PIL.ImageDraw import ImageDraw
@@ -6,7 +7,7 @@ import os
 from pathlib import Path
 
 
-class ImageCreator:
+class ImageMaker:
     def __init__(self, images_directory: str) -> None:
         self.images_path = Path(images_directory)
 
@@ -25,7 +26,7 @@ class ImageCreator:
                             (8, 258), (138, 258), (268, 258),
                             (8, 388), (138, 388), (268, 388)]
 
-    def create_image(self, text: str) -> tuple[Image.Image, list[int]]:
+    def create(self, text: str) -> tuple[bytes, list[int]]:
         """Create reCAPTCHA styled image with defined caption."""
         with Image.open(os.path.join(Path(__file__).parents[1], 'sample.jpg')) as sample:
             draw = ImageDraw(sample)
@@ -48,4 +49,11 @@ class ImageCreator:
                     image = image.resize((126, 126), Image.Resampling.LANCZOS)
                     sample.paste(image, coord)
 
-            return sample, correct_nums
+            buf = io.BytesIO()
+            sample.save(buf, 'JPEG')
+
+            return buf.getvalue(), correct_nums
+
+    def create_random(self) -> tuple[bytes, list[int]]:
+        """Create reCAPTCHA styled image with random caption."""
+        return self.create(random.choice(list(self.images_dict.keys())))
