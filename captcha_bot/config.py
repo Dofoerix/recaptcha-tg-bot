@@ -2,7 +2,7 @@ import json
 import os
 
 
-def parse_config(path: str) -> dict[str, str | bool]:
+def parse_config(path: str) -> dict[str, str | int | list]:
     """Return a dict with specified config file keys and values. If file isn't found create a new one."""
     try:
         with open(path, 'r', encoding='UTF-8') as config_file:
@@ -10,7 +10,9 @@ def parse_config(path: str) -> dict[str, str | bool]:
     except FileNotFoundError:
         config = {
             'token': '',
-            'rofl_mode': False
+            'owner_id': 0,
+            'include_directories': [],
+            'exclude_directories': []
         }
 
         with open(path, 'w', encoding='UTF-8') as config_file:

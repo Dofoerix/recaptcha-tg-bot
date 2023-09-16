@@ -1,5 +1,6 @@
 import random
 import io
+from typing import Optional
 
 from PIL import Image, ImageFont
 from PIL.ImageDraw import ImageDraw
@@ -8,17 +9,28 @@ from pathlib import Path
 
 
 class ImageMaker:
-    def __init__(self, images_directory: str) -> None:
+    def __init__(self, images_directory: str, include_directories: Optional[list[str]] = None,
+                 exclude_directories: Optional[list[str]] = None) -> None:
         self.images_path = Path(images_directory)
 
         self.images_dict: dict[str, list[str]] = {}
 
         for item in self.images_path.iterdir():
             if item.is_dir():
+                if include_directories:
+                    if item.name not in include_directories:
+                        continue
+                if exclude_directories:
+                    if item.name in exclude_directories:
+                        continue
                 self.images_dict[item.name] = []
                 for inner_item in Path(os.path.join(self.images_path, item.name)).iterdir():
                     if inner_item.is_file():
                         self.images_dict[item.name].append(inner_item.name)
+
+        for directory, files in self.images_dict.items():
+            if len(files) < 4:
+                raise ValueError(f'There must be at least four images in \'{directory}\' directory')
 
         self.images_list = [(directory, file) for directory, files in self.images_dict.items() for file in files]
 
