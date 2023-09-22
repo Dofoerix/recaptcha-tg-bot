@@ -11,7 +11,7 @@ from captcha_bot.image import ImageMaker
 
 
 async def main():
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(format='%(levelname)s | %(asctime)s | %(message)s', level=logging.INFO)
 
     config = parse_config(os.path.join(Path(__file__).parents[1], 'settings.json'))
 
@@ -21,7 +21,7 @@ async def main():
 
     bot = Bot(config['token'])
     dp = Dispatcher(image_maker=image_maker, owner_id=config['owner_id'], newcomers=newcomers,
-                    kick_delay=config['kick_delay'])
+                    kick_delay=config['kick_delay'], messages_text=config['messages_text'])
     dp.include_routers(member.router, admin.router)
 
     await dp.start_polling(bot)

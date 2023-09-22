@@ -1,11 +1,13 @@
 import asyncio
+import logging
 
 from aiogram import Router, F
 from aiogram.filters.chat_member_updated import ChatMemberUpdatedFilter, IS_MEMBER, IS_NOT_MEMBER
-from aiogram.types import ChatMemberUpdated, BufferedInputFile, Message, Chat
+from aiogram.types import ChatMemberUpdated, BufferedInputFile, Message
 
 from captcha_bot.image import ImageMaker
 from captcha_bot.filters.newcomer import NewcomerFiter
+
 
 router = Router()
 router.chat_member.filter(F.chat.type.in_({'group', 'supergroup'}))
@@ -13,13 +15,13 @@ router.message.filter(F.chat.type.in_({'group', 'supergroup'}), NewcomerFiter())
 
 async def _delay_kick(event: ChatMemberUpdated, newcomers: dict[int, tuple[list[int], asyncio.Task]], delay: int) -> None:
     user = event.new_chat_member.user
-    print(f'{user.id} will be kicked after {delay} minutes')
+    logging.info(f'{user.username} ({user.full_name}) will be kicked in {delay} minute(s)')
     try:
         await asyncio.sleep(delay * 60)
         await event.chat.unban(user.id)
-        await event.answer(f'{user.first_name} кикнут')
+        logging.info(f'{user.username} ({user.full_name}) was kicked')
     except asyncio.CancelledError:
-        await event.answer(f'{user.first_name} не будет кикнут')
+        logging.info(f'{user.username} ({user.full_name}) won\'t be kicked')
     finally:
         del newcomers[user.id]
 
@@ -29,25 +31,27 @@ async def member_joined(
     event: ChatMemberUpdated,
     image_maker: ImageMaker,
     newcomers: dict[int, tuple[list[int], asyncio.Task]],
-    kick_delay: int
+    kick_delay: int,
+    messages_text: dict[str, str]
 ):
-    user = event.new_chat_member.user.id
+    user = event.new_chat_member.user
     image, answers = image_maker.create_random()
+    text = messages_text['joined'].format(username=f'@{user.username}', first_name=user.first_name,
+                                          full_name=user.full_name, answers=str(answers).strip('[]'))
     await event.answer_photo(
         BufferedInputFile(image, 'captcha.jpg'),
-        caption=f'Привет, @{event.new_chat_member.user.username}! Реши капчу, пожалуйста\n'
-        'В своём следующем сообщении напиши цифры от 1 до 9 соответствующие картинкам (отсчёт начинается слева сверху)\n'
-        f'Вот ответы, кстати: {str(answers)}'
+        caption=text
     )
     if kick_delay:
         kick_task = asyncio.create_task(_delay_kick(event, newcomers, kick_delay))
     else:
         kick_task = None
-    newcomers[user] = (answers, kick_task)
+    newcomers[user.id] = (answers, kick_task)
 
 @router.message()
-async def solution(message: Message, newcomers: dict[int, tuple[list[int], asyncio.Task]]):
-    user = message.from_user.id
+async def solution(message: Message, newcomers: dict[int, tuple[list[int], asyncio.Task]],
+                   messages_text: dict[str, str]):
+    user = message.from_user
 
     if message.text:
         text = message.text
@@ -56,30 +60,46 @@ async def solution(message: Message, newcomers: dict[int, tuple[list[int], async
     else:
         text = None
 
+    answers = newcomers[user.id][0]
     correct = 0
+    incorrect = 0
+    user_answers = []
+
     if text:
-        for answer in newcomers[user][0]:
-            if str(answer) in text:
-                correct += 1
+        for symbol in text:
+            if symbol.isnumeric():
+                if int(symbol) in answers and symbol not in user_answers:
+                    user_answers.append(symbol)
+                    correct += 1
+                elif int(symbol) not in answers:
+                    incorrect += 1
 
         if not any(symbol.isdigit() for symbol in text):
-            congrats = 'Ни одной цифры не написал...'
+            congrats = messages_text['no_nums']
         elif correct == 0:
-            congrats = 'Что-то грустно...'
-        elif correct < 3:
-            congrats = 'Ну хоть что-то...'
+            congrats = messages_text['0_correct']
+        elif correct == 1:
+            congrats = messages_text['1_correct']
+        elif correct == 2:
+            congrats = messages_text['2_correct']
         elif correct == 3:
-            congrats = 'Неплохо!'
+            congrats = messages_text['3_correct']
+        elif correct > 3 and incorrect > 2:
+            congrats = messages_text['incorrect']
         elif correct > 3:
-            congrats = 'Поздравляю!'
+            congrats = messages_text['4_correct']
     else:
-        congrats = 'Это даже не текст...'
+        congrats = messages_text['no_text']
 
-    await message.reply(f'Твой ответ содержит {correct} правильных ответов. {congrats}')
+    text = messages_text['answer'].format(username=f'@{user.username}', first_name=user.first_name,
+                                          full_name=user.full_name, correct=correct, incorrect=incorrect,
+                                          congrats=congrats, answers=str(answers).strip('[]'))
 
-    kick_task = newcomers[user][1]
+    await message.reply(text)
+
+    kick_task = newcomers[user.id][1]
     if isinstance(kick_task, asyncio.Task):
         kick_task.cancel()
-        print(f'{user} kick task is cancelled')
+        logging.info(f'{user.username} ({user.full_name}) kick task was cancelled')
     else:
         del newcomers[user]

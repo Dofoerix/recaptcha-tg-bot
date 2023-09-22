@@ -1,11 +1,11 @@
 import random
 import io
+import os
+from pathlib import Path
 from typing import Optional
 
 from PIL import Image, ImageFont
 from PIL.ImageDraw import ImageDraw
-import os
-from pathlib import Path
 
 
 class ImageMaker:

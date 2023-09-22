@@ -13,7 +13,22 @@ def parse_config(path: str) -> dict[str, str | int | list]:
             'owner_id': 0,
             'include_directories': [],
             'exclude_directories': [],
-            'kick_delay': 0
+            'kick_delay': 0,
+            'messages_text': {
+                'joined': ('Привет, {username}! Реши капчу, пожалуйста\n'
+                           'В своём следующем сообщении напиши цифры от 1 до 9, соответствующие картинкам '
+                           '(отсчёт начинается слева сверху)'),
+                'answer': ('Твой ответ содержит {correct} правильных ответов. {congrats}\n'
+                           'Правильные ответы: {answers}'),
+                'no_nums': 'Ни одной цифры не написал...',
+                'no_text': 'Это даже не текст...',
+                '0_correct': 'Что-то грустно...',
+                '1_correct': 'Ну хоть что-то...',
+                '2_correct': 'Лучше, чем хоть что-то...',
+                '3_correct': 'Неплохо!',
+                '4_correct': 'Поздравляю!',
+                'incorrect': 'Кажется ты решал как то не так...'
+            }
         }
 
         with open(path, 'w', encoding='UTF-8') as config_file:
