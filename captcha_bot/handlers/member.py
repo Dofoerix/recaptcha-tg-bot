@@ -7,11 +7,12 @@ from aiogram.types import ChatMemberUpdated, BufferedInputFile, Message
 
 from captcha_bot.image import ImageMaker
 from captcha_bot.filters.newcomer import NewcomerFiter
+from captcha_bot.filters.chat import ChatFilter
 
 
 router = Router()
-router.chat_member.filter(F.chat.type.in_({'group', 'supergroup'}))
-router.message.filter(F.chat.type.in_({'group', 'supergroup'}), NewcomerFiter())
+router.chat_member.filter(F.chat.type.in_({'group', 'supergroup'}), ChatFilter())
+router.message.filter(F.chat.type.in_({'group', 'supergroup'}), NewcomerFiter(), ChatFilter())
 
 async def _delay_kick(event: ChatMemberUpdated, newcomers: dict[int, tuple[list[int], asyncio.Task]], delay: int) -> None:
     user = event.new_chat_member.user

@@ -11,6 +11,7 @@ def parse_config(path: str) -> dict[str, str | int | list]:
         config = {
             'token': '',
             'owner_id': 0,
+            'chat_ids': [],
             'include_directories': [],
             'exclude_directories': [],
             'no_caption_directories': [],

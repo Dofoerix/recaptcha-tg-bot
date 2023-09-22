@@ -21,8 +21,8 @@ async def main():
     newcomers = {}
 
     bot = Bot(config['token'])
-    dp = Dispatcher(image_maker=image_maker, owner_id=config['owner_id'], newcomers=newcomers,
-                    kick_delay=config['kick_delay'], messages_text=config['messages_text'])
+    dp = Dispatcher(image_maker=image_maker, owner_id=config['owner_id'], chat_ids=config['chat_ids'],
+                    newcomers=newcomers, kick_delay=config['kick_delay'], messages_text=config['messages_text'])
     dp.include_routers(member.router, admin.router)
 
     await dp.start_polling(bot)
