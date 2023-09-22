@@ -13,6 +13,7 @@ def parse_config(path: str) -> dict[str, str | int | list]:
             'owner_id': 0,
             'include_directories': [],
             'exclude_directories': [],
+            'no_caption_directories': [],
             'kick_delay': 0,
             'messages_text': {
                 'joined': ('Привет, {username}! Реши капчу, пожалуйста\n'

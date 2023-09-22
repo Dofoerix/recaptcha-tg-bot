@@ -15,7 +15,8 @@ async def main():
 
     config = parse_config(os.path.join(Path(__file__).parents[1], 'settings.json'))
 
-    image_maker = ImageMaker('images', config['include_directories'], config['exclude_directories'])
+    image_maker = ImageMaker('images', config['include_directories'], config['exclude_directories'],
+                             config['no_caption_directories'])
 
     newcomers = {}
 

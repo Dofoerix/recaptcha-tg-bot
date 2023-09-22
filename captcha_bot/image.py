@@ -10,7 +10,8 @@ from PIL.ImageDraw import ImageDraw
 
 class ImageMaker:
     def __init__(self, images_directory: str, include_directories: Optional[list[str]] = None,
-                 exclude_directories: Optional[list[str]] = None) -> None:
+                 exclude_directories: Optional[list[str]] = None,
+                 no_caption_directories: Optional[list[str]] = None) -> None:
         self.images_path = Path(images_directory)
 
         self.images_dict: dict[str, list[str]] = {}
@@ -33,6 +34,11 @@ class ImageMaker:
                 raise ValueError(f'There must be at least four images in \'{directory}\' directory')
 
         self.images_list = [(directory, file) for directory, files in self.images_dict.items() for file in files]
+
+        # These images can't be used as caption, but still appear in captcha
+        for directory in list(self.images_dict.keys()):
+            if directory in no_caption_directories:
+                del self.images_dict[directory]
 
         self.coordinates = [(8, 128), (138, 128), (268, 128),
                             (8, 258), (138, 258), (268, 258),
