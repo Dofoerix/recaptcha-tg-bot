@@ -12,7 +12,7 @@ router.message.filter(F.chat.type == 'private', OwnerFilter())
 
 @router.message(CommandStart())
 async def start(message: Message):
-    await message.reply('Привет, вот мои команды для тестов:\n'
+    await message.reply('Привет, вот мои команды:\n'
                         '/start - вывести этот текст\n'
                         '/create <подпись> - вывести капчу с заданной подписью\n'
                         '/create_random - вывести капчу со случайной подписью')
