@@ -1,6 +1,6 @@
 # reCAPTCHA Telegram Bot
 
-Telegram bot that sends reCAPTCHA styled image when someone enters a chat.
+Telegram bot that sends reCAPTCHA styled image when someone joins a chat.
 
 ## Usage
 
@@ -12,7 +12,7 @@ At first you need to install dependencies:
 cd ./recaptcha-tg-bot
 python3 -m venv env
 source ./env/bin/activate
-pip install -r requirements
+pip install -r requirements.txt
 ```
 
 **Windows:**
@@ -36,9 +36,9 @@ Next step you need to create `images` directory. In it create other directories 
 
 After all you will be able to run it.
 
-In Telegram add the bot to your chat (also make sure that `chats_id` array in settings file has its ID or that it's empty) and make it admin.
+In Telegram add the bot to your chat (also make sure that `chats_id` array in settings file has its ID or that it's empty) and promote it to admin.
 
-If you want to get some captcha images, you can direct message the bot. It will send you all its commands on the `/start` command.
+If you want to get some captcha images, you can direct message the bot (your Telegram ID must be in `owner_id` in settings file). It will send you all its commands on the `/start` command.
 
 ## Settings File
 
@@ -61,7 +61,7 @@ All bot settings stored in `settings.json` file. After the first launch there wi
 
 ### Allowed Keys
 
-Some of message texts can be formatted with some keys. 
+Some of message texts can be formatted with some keys:
 
 - `username` - '\@' symbol with user's  username
 - `first_name` - user's first name
@@ -77,10 +77,10 @@ For example this text:
 
 will be formatted as: 
 
-`some text... @dofoerix | @Dofoerix | Dofoerix Second Name | 1, 4, 5, 9 | 3 | 1 | Not bad!`
+`some text... @dofoerix | Dofoerix | Dofoerix Second Name | 1, 4, 5, 9 | 3 | 1 | Not bad!`
 
 ## Licenses
 
-This bot use Roboto font by Christian Robertson. It's licensed under the Apache License, Version 2.0.
+This bot uses Roboto font by Christian Robertson. It's licensed under the Apache License, Version 2.0.
 
 Bot itself licensed under the MIT license.
