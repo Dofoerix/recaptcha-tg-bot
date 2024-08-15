@@ -3,7 +3,7 @@ FROM python:3.12.5-slim-bookworm
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 WORKDIR /bot
-RUN botuser \
+RUN adduser \
     --disabled-password \
     --gecos "" \
     --home "/nonexistent" \
