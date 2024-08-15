@@ -1,0 +1,6 @@
+services:
+  bot:
+    build:
+      context: .
+    restart: unless-stopped
+    stop_signal: SIGINT

@@ -8,6 +8,7 @@ from aiogram.types import ChatMemberUpdated, BufferedInputFile, Message
 from captcha_bot.image import ImageMaker
 from captcha_bot.filters.newcomer import NewcomerFiter
 from captcha_bot.filters.chat import ChatFilter
+from captcha_bot.config import MessagesText
 
 
 router = Router()
@@ -16,9 +17,9 @@ router.message.filter(F.chat.type.in_({'group', 'supergroup'}), NewcomerFiter(),
 
 async def _delay_kick(event: ChatMemberUpdated, newcomers: dict[int, tuple[list[int], asyncio.Task]], delay: int) -> None:
     user = event.new_chat_member.user
-    logging.info(f'{user.username} ({user.full_name}) will be kicked in {delay} minute(s)')
+    logging.info(f'{user.username} ({user.full_name}) will be kicked in {delay} second(s)')
     try:
-        await asyncio.sleep(delay * 60)
+        await asyncio.sleep(delay)
         await event.chat.unban(user.id)
         logging.info(f'{user.username} ({user.full_name}) was kicked')
     except asyncio.CancelledError:
@@ -33,11 +34,11 @@ async def member_joined(
     image_maker: ImageMaker,
     newcomers: dict[int, tuple[list[int], asyncio.Task]],
     kick_delay: int,
-    messages_text: dict[str, str]
+    messages_text: MessagesText
 ):
     user = event.new_chat_member.user
     image, answers = image_maker.create_random()
-    text = messages_text['joined'].format(username=f'@{user.username}', first_name=user.first_name,
+    text = messages_text.joined.format(username=f'@{user.username}', first_name=user.first_name,
                                           full_name=user.full_name, answers=str(answers).strip('[]'))
     await event.answer_photo(
         BufferedInputFile(image, 'captcha.jpg'),
@@ -51,7 +52,7 @@ async def member_joined(
 
 @router.message()
 async def solution(message: Message, newcomers: dict[int, tuple[list[int], asyncio.Task]],
-                   messages_text: dict[str, str]):
+                   messages_text: MessagesText):
     user = message.from_user
 
     if message.text:
@@ -76,25 +77,25 @@ async def solution(message: Message, newcomers: dict[int, tuple[list[int], async
                     incorrect += 1
 
         if not any(symbol.isdigit() for symbol in text):
-            congrats = messages_text['no_nums']
+            congrats = messages_text.no_nums
         elif correct == 0:
-            congrats = messages_text['0_correct']
+            congrats = messages_text.correct_0
         elif correct == 1:
-            congrats = messages_text['1_correct']
+            congrats = messages_text.correct_1
         elif correct == 2:
-            congrats = messages_text['2_correct']
+            congrats = messages_text.correct_2
         elif correct == 3:
-            congrats = messages_text['3_correct']
+            congrats = messages_text.correct_3
         elif correct > 3 and incorrect > 2:
-            congrats = messages_text['incorrect']
+            congrats = messages_text.incorrect
         elif correct > 3:
-            congrats = messages_text['4_correct']
+            congrats = messages_text.correct_4
     else:
-        congrats = messages_text['no_text']
+        congrats = messages_text.no_text
 
-    text = messages_text['answer'].format(username=f'@{user.username}', first_name=user.first_name,
-                                          full_name=user.full_name, correct=correct, incorrect=incorrect,
-                                          congrats=congrats, answers=str(answers).strip('[]'))
+    text = messages_text.answer.format(username=f'@{user.username}', first_name=user.first_name,
+                                       full_name=user.full_name, correct=correct, incorrect=incorrect,
+                                       congrats=congrats, answers=str(answers).strip('[]'))
 
     await message.reply(text)
 

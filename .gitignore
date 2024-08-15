@@ -1,6 +1,7 @@
 __pycache__
 .vscode
-env
+venv
 images*
 *test*
 *settings*.json
+!settings.json.dist

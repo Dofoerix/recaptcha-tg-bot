@@ -1,2 +1,3 @@
-aiogram
-Pillow
+aiogram==3.11.0
+pydantic_settings==2.4.0
+Pillow==10.4.0
